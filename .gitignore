@@ -5,3 +5,9 @@ target/
 .DS_Store
 *.log
 /data/
+
+# Eclipse/jdtls
+.project
+.classpath
+.settings/
+.factorypath
