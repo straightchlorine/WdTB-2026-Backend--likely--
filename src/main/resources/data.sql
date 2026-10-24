@@ -87,10 +87,10 @@ insert into resolution (question_id, outcome, resolved_by_id, resolved_at) value
      'NO', (select id from user_account where email = 'admin@example.com'), dateadd('DAY', -16, current_timestamp));
 
 -- ===== trade =====
--- Transakcje w kolejności ich wykonania - wyznaczą ją id wiersza.
+-- Transakcje w kolejności ich wykonania - wyznacza ją id wiersza.
 -- Każda transakcja zmienia stan pytania - liczbę udziałów TAK/NIE.
 -- Następna transakcja w tym samym pytaniu rozpoczyna się od tego stanu.
--- Zanim ktokolwiek kupi rynek jest neturalny 50/50.
+-- Zanim ktokolwiek kupi, rynek jest neutralny 50/50.
 
 -- Liczby wykorzystują wzory LMSR, dla b = 100.
 -- koszt C(q) = b * ln(exp(qYes/b) + exp(qNo/b))
@@ -152,15 +152,15 @@ insert into holding (wallet_id, question_id, shares_yes, shares_no, payout) valu
      (select id from question where title = 'Will Netflix announce season 2 of series X by the end of the year?'), 10.0000, 0.0000, 5.1250);
 
 -- ===== score_result =====
--- Wynik Briera jednego gracza w jednym rostrzygniętym pytaniu. Definiuje jak bardzo jego prognoza
+-- Wynik Briera jednego gracza w jednym rozstrzygniętym pytaniu. Definiuje jak bardzo jego prognoza
 -- minęła się z rzeczywistym faktem. 0 to idealne trafienie, im więcej tym gorzej.
 --
 -- forecast to cena po ostatniej transakcji gracza
 -- NIE: min(0.5, cena);
 -- TAK: max(0.5, cena)
 --
--- Jeżeli zakup przesunął cenę w strone gracza, ranking traktuje nową cenę jako prognozę gracza.
--- Jeżeli to prawdopodobieństwo zostało po przeciwnej stronie 50%, liczmy to jako rzut monetą.
+-- Jeżeli zakup przesunął cenę w stronę gracza, ranking traktuje nową cenę jako prognozę gracza.
+-- Jeżeli to prawdopodobieństwo zostało po przeciwnej stronie 50%, liczymy to jako rzut monetą.
 insert into score_result (account_id, question_id, forecast, brier, scored_at) values
     ((select id from user_account where email = 'piotr.lis@student.merito.pl'),
      (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.549834, 0.202649, dateadd('DAY', -15, current_timestamp)),
