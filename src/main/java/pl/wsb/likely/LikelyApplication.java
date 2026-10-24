@@ -3,7 +3,7 @@ package pl.wsb.likely;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/** Punkt startowy aplikacji Likely. */
+/** Entry point for Likely. */
 @SpringBootApplication
 public class LikelyApplication {
 

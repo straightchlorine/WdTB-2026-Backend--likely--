@@ -12,11 +12,12 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * Konto użytkownika: jedyna tabela, którą dostajecie gotową. Każdy projekt ma użytkowników.
+ * User account. This comes from the course template.
  *
- * <p>Potraktujcie ją jako wzór mapowania. Wasze encje (klient, korepetytor, wolontariusz…)
- * mogą wskazywać na konto relacją {@code @ManyToOne} albo {@code @OneToOne}.
- * Na LAB 06 to konto posłuży do logowania.
+ * <p>Mapping example. Other entities can point to an account with {@code @ManyToOne} or
+ * {@code @OneToOne}.
+ *
+ * <p>In LAB 06 the account is used for login.
  */
 @Entity
 @Table(name = "user_account")
@@ -39,8 +40,7 @@ public class UserAccount {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    protected UserAccount() {
-    }
+    protected UserAccount() {}
 
     public UserAccount(String email, String displayName, AccountRole role) {
         this.email = email;
