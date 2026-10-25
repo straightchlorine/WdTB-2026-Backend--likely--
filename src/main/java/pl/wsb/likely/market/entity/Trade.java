@@ -4,12 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import org.hibernate.annotations.Check;
@@ -42,14 +39,11 @@ public class Trade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Owning side of the 1:N relation question -> trades.
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "question_id")
-    private Question question;
+    @Column(name = "question_id", nullable = false)
+    private Long questionId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "wallet_id")
-    private Wallet wallet;
+    @Column(name = "wallet_id", nullable = false)
+    private Long walletId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "side", nullable = false, length = 3)
@@ -78,15 +72,15 @@ public class Trade {
     protected Trade() {}
 
     public Trade(
-            Question question,
-            Wallet wallet,
+            Long questionId,
+            Long walletId,
             Outcome side,
             BigDecimal shares,
             BigDecimal amount,
             BigDecimal priceAfter,
             LocalDateTime createdAt) {
-        this.question = question;
-        this.wallet = wallet;
+        this.questionId = questionId;
+        this.walletId = walletId;
         this.side = side;
         this.shares = shares;
         this.amount = amount;
@@ -98,12 +92,12 @@ public class Trade {
         return id;
     }
 
-    public Question getQuestion() {
-        return question;
+    public Long getQuestionId() {
+        return questionId;
     }
 
-    public Wallet getWallet() {
-        return wallet;
+    public Long getWalletId() {
+        return walletId;
     }
 
     public Outcome getSide() {

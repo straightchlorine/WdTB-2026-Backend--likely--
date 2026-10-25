@@ -5,25 +5,16 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import org.hibernate.annotations.Check;
 
-import pl.wsb.likely.account.domain.UserAccount;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A question about the future, with its own LMSR market.
@@ -49,16 +40,10 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relation to the user_account.
-    // It is planned that it would become:
-    //  @Column(name = "creator_id", nullable = false)
-    //  private Long creatorId;
-    // Currently this field keeps the object itself, lazily loaded from the db.
-    // Another plus would be that modules would refer to one another by id only.
-    // Since LAB 02 requires a relation with user_account - it's kept as an exception.
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "creator_id")
-    private UserAccount creator;
+    // Id of the account that created the question. Plain id, so modules refer to one another
+    // by id only.
+    @Column(name = "creator_id", nullable = false)
+    private Long creatorId;
 
     @Column(name = "title", nullable = false, length = 200)
     private String title;
@@ -82,21 +67,16 @@ public class Question {
     @Column(name = "version", nullable = false)
     private long version;
 
-    // Trade.question owns the relation (the foreign key is there), so changes here
-    // would be ignored by the ORM.
-    @OneToMany(mappedBy = "question")
-    private List<Trade> trades = new ArrayList<>();
-
     protected Question() {}
 
     public Question(
-            UserAccount creator,
+            Long creatorId,
             String title,
             String description,
             LocalDateTime closeAt,
             BigDecimal liquidityB,
             LocalDateTime createdAt) {
-        this.creator = creator;
+        this.creatorId = creatorId;
         this.title = title;
         this.description = description;
         this.status = QuestionStatus.OPEN;
@@ -109,8 +89,8 @@ public class Question {
         return id;
     }
 
-    public UserAccount getCreator() {
-        return creator;
+    public Long getCreatorId() {
+        return creatorId;
     }
 
     public String getTitle() {
@@ -139,9 +119,5 @@ public class Question {
 
     public long getVersion() {
         return version;
-    }
-
-    public List<Trade> getTrades() {
-        return Collections.unmodifiableList(trades);
     }
 }
