@@ -2,23 +2,29 @@ package pl.wsb.likely.scoring.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Check;
+
+import pl.wsb.likely.account.domain.UserAccount;
+import pl.wsb.likely.market.entity.Question;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * The Brier score of one player in one resolved question. Ranking of players would be built from
- * this rows.
+ * these rows.
  *
- * <p>Module scoring does not know the entities of modules market and account. It keeps only ids,
- * with no relations and no FK. The Service is planned to check that those ids are valid.
+ * <p>Many scores point to one player (account) and many to one question; a player has at most one
+ * score per question.
  */
 @Entity
 @Table(
@@ -34,11 +40,13 @@ public class ScoreResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_id", nullable = false)
-    private Long accountId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "account_id")
+    private UserAccount account;
 
-    @Column(name = "question_id", nullable = false)
-    private Long questionId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id")
+    private Question question;
 
     // YES probability assigned to the player:
     // the price after their last trade (highest id), clamped to 0.5 on the side of their net
@@ -58,13 +66,13 @@ public class ScoreResult {
     protected ScoreResult() {}
 
     public ScoreResult(
-            Long accountId,
-            Long questionId,
+            UserAccount account,
+            Question question,
             BigDecimal forecast,
             BigDecimal brier,
             LocalDateTime scoredAt) {
-        this.accountId = accountId;
-        this.questionId = questionId;
+        this.account = account;
+        this.question = question;
         this.forecast = forecast;
         this.brier = brier;
         this.scoredAt = scoredAt;
@@ -74,12 +82,12 @@ public class ScoreResult {
         return id;
     }
 
-    public Long getAccountId() {
-        return accountId;
+    public UserAccount getAccount() {
+        return account;
     }
 
-    public Long getQuestionId() {
-        return questionId;
+    public Question getQuestion() {
+        return question;
     }
 
     public BigDecimal getForecast() {

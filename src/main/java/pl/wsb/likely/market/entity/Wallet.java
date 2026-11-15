@@ -2,13 +2,18 @@ package pl.wsb.likely.market.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import org.hibernate.annotations.Check;
+
+import pl.wsb.likely.account.domain.UserAccount;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,12 +37,12 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Id of the account that owns the wallet.
-    // Plain id instead of the UserAccount object. There is no FK, so the database
-    // does not check that the account exists.
-    // Service is expected to verify it.
-    @Column(name = "account_id", nullable = false, unique = true)
-    private Long accountId;
+    // The account that owns the wallet (one wallet <-> one account).
+    // The FK is here; unique, so an account cannot open a second wallet.
+    // UserAccount has no field pointing back, so the account class stays unchanged.
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "account_id", unique = true)
+    private UserAccount account;
 
     @Column(name = "balance", nullable = false, precision = 19, scale = 4)
     private BigDecimal balance;
@@ -51,8 +56,8 @@ public class Wallet {
 
     protected Wallet() {}
 
-    public Wallet(Long accountId, LocalDateTime createdAt) {
-        this.accountId = accountId;
+    public Wallet(UserAccount account, LocalDateTime createdAt) {
+        this.account = account;
         this.balance = STARTING_BALANCE;
         this.createdAt = createdAt;
     }
@@ -61,8 +66,8 @@ public class Wallet {
         return id;
     }
 
-    public Long getAccountId() {
-        return accountId;
+    public UserAccount getAccount() {
+        return account;
     }
 
     public BigDecimal getBalance() {

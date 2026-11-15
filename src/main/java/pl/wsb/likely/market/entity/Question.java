@@ -5,16 +5,25 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import org.hibernate.annotations.Check;
 
+import pl.wsb.likely.account.domain.UserAccount;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A question about the future, with its own LMSR market.
@@ -40,10 +49,11 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Id of the account that created the question. Plain id, so modules refer to one another
-    // by id only.
-    @Column(name = "creator_id", nullable = false)
-    private Long creatorId;
+    // The account that created the question (many questions -> one account).
+    // LAZY: the account is read from the db only when it is actually used.
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "creator_id")
+    private UserAccount creator;
 
     @Column(name = "title", nullable = false, length = 200)
     private String title;
@@ -67,16 +77,21 @@ public class Question {
     @Column(name = "version", nullable = false)
     private long version;
 
+    // Trade.question owns the relation (the foreign key is there), so changes here
+    // would be ignored by the ORM.
+    @OneToMany(mappedBy = "question")
+    private List<Trade> trades = new ArrayList<>();
+
     protected Question() {}
 
     public Question(
-            Long creatorId,
+            UserAccount creator,
             String title,
             String description,
             LocalDateTime closeAt,
             BigDecimal liquidityB,
             LocalDateTime createdAt) {
-        this.creatorId = creatorId;
+        this.creator = creator;
         this.title = title;
         this.description = description;
         this.status = QuestionStatus.OPEN;
@@ -89,8 +104,8 @@ public class Question {
         return id;
     }
 
-    public Long getCreatorId() {
-        return creatorId;
+    public UserAccount getCreator() {
+        return creator;
     }
 
     public String getTitle() {
@@ -119,5 +134,9 @@ public class Question {
 
     public long getVersion() {
         return version;
+    }
+
+    public List<Trade> getTrades() {
+        return Collections.unmodifiableList(trades);
     }
 }

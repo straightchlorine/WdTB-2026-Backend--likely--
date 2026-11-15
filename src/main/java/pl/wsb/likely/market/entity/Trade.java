@@ -4,9 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import org.hibernate.annotations.Check;
@@ -25,8 +28,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "trade")
-// The service validates the input first.
-// The CHECK catches writes that skip it (data.sql, manual SQL in the console).
+// The service (planned for LAB 04) will validate the input first.
+// The CHECK also stops writes that skip it (data.sql, manual SQL in the H2 console).
 // amount <= shares because a share pays at most 1 point, so it cannot cost more.
 @Check(
         name = "ck_trade",
@@ -39,11 +42,14 @@ public class Trade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "question_id", nullable = false)
-    private Long questionId;
+    // Owning side of the 1:N relation question -> trades.
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id")
+    private Question question;
 
-    @Column(name = "wallet_id", nullable = false)
-    private Long walletId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "side", nullable = false, length = 3)
@@ -72,15 +78,15 @@ public class Trade {
     protected Trade() {}
 
     public Trade(
-            Long questionId,
-            Long walletId,
+            Question question,
+            Wallet wallet,
             Outcome side,
             BigDecimal shares,
             BigDecimal amount,
             BigDecimal priceAfter,
             LocalDateTime createdAt) {
-        this.questionId = questionId;
-        this.walletId = walletId;
+        this.question = question;
+        this.wallet = wallet;
         this.side = side;
         this.shares = shares;
         this.amount = amount;
@@ -92,12 +98,12 @@ public class Trade {
         return id;
     }
 
-    public Long getQuestionId() {
-        return questionId;
+    public Question getQuestion() {
+        return question;
     }
 
-    public Long getWalletId() {
-        return walletId;
+    public Wallet getWallet() {
+        return wallet;
     }
 
     public Outcome getSide() {

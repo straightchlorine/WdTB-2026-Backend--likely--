@@ -2,9 +2,12 @@ package pl.wsb.likely.market.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -39,11 +42,13 @@ public class Holding {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "wallet_id", nullable = false)
-    private Long walletId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
 
-    @Column(name = "question_id", nullable = false)
-    private Long questionId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id")
+    private Question question;
 
     @Column(name = "shares_yes", nullable = false, precision = 19, scale = 4)
     private BigDecimal sharesYes;
@@ -60,9 +65,9 @@ public class Holding {
 
     protected Holding() {}
 
-    public Holding(Long walletId, Long questionId) {
-        this.walletId = walletId;
-        this.questionId = questionId;
+    public Holding(Wallet wallet, Question question) {
+        this.wallet = wallet;
+        this.question = question;
         this.sharesYes = BigDecimal.ZERO;
         this.sharesNo = BigDecimal.ZERO;
     }
@@ -71,12 +76,12 @@ public class Holding {
         return id;
     }
 
-    public Long getWalletId() {
-        return walletId;
+    public Wallet getWallet() {
+        return wallet;
     }
 
-    public Long getQuestionId() {
-        return questionId;
+    public Question getQuestion() {
+        return question;
     }
 
     public BigDecimal getSharesYes() {

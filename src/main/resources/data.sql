@@ -2,8 +2,8 @@
 
 -- Demo accounts from the course template.
 -- Market data does use those accounts:
--- * firma creates the questions,
--- * admin resolves,
+-- * firma creates the questions and, as the creator, resolves one of them,
+-- * admin resolves the other two,
 -- * ola plays (kuba only has a wallet).
 insert into user_account (email, display_name, role, created_at) values
     ('ola@student.merito.pl',   'Ola',   'USER',    current_timestamp),
@@ -19,9 +19,11 @@ insert into user_account (email, display_name, role, created_at) values
     ('placeholder.r1-03@example.com', 'Placeholder (2-person team)', 'USER', current_timestamp);
 
 -- ---------------------------------------------------------------
--- LAB 02: forecast market:
+-- LAB 02-03: forecast market:
 -- Id nadaje baza, po kolei, w kolejności insertów, więc nie wpisujemy ich ręcznie.
 -- Inne wiersze wskazujemy przez select po e-mailu (konta) albo tytule (pytania).
+-- Od LAB 03 wszystkie kolumny *_id poniżej są kluczami obcymi (relacje w encjach):
+-- creator_id, account_id i resolved_by_id wskazują konto, question_id pytanie, wallet_id portfel.
 --
 -- Players in the demo data:
 -- * piotr.lis@student.merito.pl,
