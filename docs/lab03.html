@@ -133,14 +133,17 @@ private UserAccount account;
 </code></pre>
 <p><strong>Dane startowe.</strong> W kolumnie klucza obcego wpisujecie numer wiersza tabeli nadrzędnej (baza numeruje wiersze od 1
 w kolejności poleceń <code>insert</code>). Sekcja tabeli nadrzędnej musi być <strong>wyżej</strong> niż sekcja tabeli podrzędnej:</p>
-<pre><code>-- ===== LAB 02 · guest =====                 (konta z sekcji user_account: 1 = Ola, 2 = Kuba)
+<pre><code>-- ===== LAB 02 · guest =====
+-- user_account_id: numer konta z sekcji user_account (1 = Ola, 2 = Kuba)
 insert into guest (full_name, phone, user_account_id) values
     ('Anna Kowalska',  '600100200', 1),
     ('Jan Nowak',      null,        2),
     ('Ewa Wiśniewska', '600500600', null);
 
--- ===== LAB 03 · reservation =====           (guest_id i table_id wskazują wiersze powyżej)
-insert into reservation (guest_id, table_id, starts_at, party_size, status, deposit) values
+-- ===== LAB 03 · reservation =====
+-- guest_id i table_id wskazują wiersze z sekcji powyżej
+insert into reservation
+    (guest_id, table_id, starts_at, party_size, status, deposit) values
     (1, 1, '2026-11-14 18:00:00', 2, 'NEW',       20.00),
     (1, 2, '2026-11-15 12:00:00', 4, 'CONFIRMED', 40.00),
     (2, 2, '2026-11-16 19:00:00', 3, 'NEW',        0.00);
@@ -155,7 +158,8 @@ id | starts_at         reservation_id | extra_id        id | name
  2 | 15.11 12:00                    1 |        2         2 | Kwiaty
                                     2 |        1
 
-rezerwacja 1 ma tort i kwiaty, rezerwacja 2 ma tort; tort jest w dwóch rezerwacjach
+rezerwacja 1 ma tort i kwiaty, rezerwacja 2 ma tort
+tort jest w dwóch rezerwacjach
 </code></pre>
 <p>Tabelę łączącą można zapisać w JPA na dwa sposoby. Dla danej pary tabel wybieracie <strong>jeden</strong>:</p>
 <div class="tbl"><table>
@@ -197,25 +201,29 @@ W sposobie 2 tabelę łączącą tworzy Hibernate, a w kodzie zostaje jedno pole
 <li>W encjach <code>Reservation</code> i <code>Extra</code> niczego nie zmieniacie.</li>
 </ol>
 <pre><code>@Entity
-@Table(name = "reservation_extra")                         // tabela łącząca
+@Table(name = "reservation_extra")   // tabela łącząca
 public class ReservationExtra {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)   // której rezerwacji dotyczy ten wiersz
+    // której rezerwacji dotyczy ten wiersz
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)   // który dodatek został wybrany
+    // który dodatek został wybrany
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "extra_id", nullable = false)
     private Extra extra;
 
-    @Column(name = "quantity", nullable = false)           // dane własne pary: ile sztuk
+    // dane własne pary: ile sztuk
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "note", length = 120)                   // dane własne pary: uwagi
+    // dane własne pary: uwagi
+    @Column(name = "note", length = 120)
     private String note;
 
     protected ReservationExtra() {
@@ -313,7 +321,8 @@ private &lt;EncjaNadrzędna&gt; &lt;pole&gt;;
 <p>W encji nadrzędnej dopiszcie listę wierszy podrzędnych. Są dwa poprawne zapisy.</p>
 <p><strong>Relacja dwukierunkowa</strong> (zalecana): encja podrzędna ma już pole <code>@ManyToOne</code> z C1, a lista jest drugim końcem tej samej relacji.
 <code>mappedBy</code> to nazwa tego pola. Lista nie tworzy kolumny i nie wymaga danych w <code>data.sql</code>:</p>
-<pre><code>// w encji nadrzędnej, np. CafeTable; w Reservation jest pole: private CafeTable table
+<pre><code>// w encji nadrzędnej, np. CafeTable
+// w Reservation jest pole: private CafeTable table
 @OneToMany(mappedBy = "&lt;pole @ManyToOne w encji podrzędnej&gt;")
 private List&lt;&lt;EncjaPodrzędna&gt;&gt; &lt;pole&gt; = new ArrayList&lt;&gt;();
 </code></pre>
@@ -322,7 +331,8 @@ a pozycja nie ma pola „zamówienie”. Wtedy zamiast <code>mappedBy</code> pod
 więc w <code>data.sql</code> wpisujecie ją w <code>insert</code> tabeli podrzędnej:</p>
 <pre><code>// w encji nadrzędnej, np. Order; klasa OrderLine nie ma pola typu Order
 @OneToMany
-@JoinColumn(name = "&lt;tabela_nadrzędna&gt;_id")       // kolumna order_id w tabeli order_line
+// kolumna klucza obcego, np. order_id w tabeli order_line
+@JoinColumn(name = "&lt;tabela_nadrzędna&gt;_id")
 private List&lt;&lt;EncjaPodrzędna&gt;&gt; &lt;pole&gt; = new ArrayList&lt;&gt;();
 </code></pre>
 <p><code>@OneToMany</code> bez <code>mappedBy</code> i bez <code>@JoinColumn</code> jest błędem: Hibernate tworzy wtedy dodatkową tabelę łączącą, której nie planowaliście.</p>
