@@ -2,14 +2,14 @@
 
 Plik generują reguły projektu (panel Maven → Lifecycle → verify). Nie edytujcie go ręcznie.
 
-Tabele: 7 · kolumny: 46 · relacje: 8 × @ManyToOne, 1 × @OneToMany, 2 × @OneToOne, 0 × @ManyToMany
+Tabele: 7 · kolumny: 45 · relacje: 7 × @ManyToOne, 1 × @OneToMany, 2 × @OneToOne, 0 × @ManyToMany
 
 | Tabela | Encja | Kolumny | Klucze obce |
 |---|---|---|---|
 | holding | Holding | 6 | question_id, wallet_id |
 | question | Question | 11 | creator_id |
-| resolution | Resolution | 5 | question_id, resolved_by_id |
-| score_result | ScoreResult | 6 | account_id, question_id |
+| resolution | Resolution | 5 | question_id |
+| score_result | ScoreResult | 5 | account_id, question_id |
 | trade | Trade | 8 | question_id, wallet_id |
 | user_account | UserAccount | 5 | — |
 | wallet | Wallet | 5 | account_id |
@@ -42,7 +42,7 @@ erDiagram
         Outcome outcome
         Long question_id FK
         LocalDateTime resolved_at
-        Long resolved_by_id FK
+        String source
     }
     score_result {
         Long id PK
@@ -50,7 +50,6 @@ erDiagram
         BigDecimal brier
         BigDecimal forecast
         Long question_id FK
-        LocalDateTime scored_at
     }
     trade {
         Long id PK
@@ -81,7 +80,6 @@ erDiagram
     question ||--o{ trade : "question_id"
     question ||--o| resolution : "question_id"
     user_account ||--o{ question : "creator_id"
-    user_account ||--o{ resolution : "resolved_by_id"
     user_account ||--o{ score_result : "account_id"
     user_account ||--o| wallet : "account_id"
     wallet ||--o{ holding : "wallet_id"

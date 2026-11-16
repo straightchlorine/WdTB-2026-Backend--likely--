@@ -61,7 +61,8 @@ class MarketMappingTest {
                                 new BigDecimal("0.524979"),
                                 T0.plusHours(1)));
         holding = em.persist(new Holding(wallet, question));
-        resolution = em.persist(new Resolution(question, Outcome.YES, creator, T0.plusDays(8)));
+        resolution =
+                em.persist(new Resolution(question, Outcome.YES, "Test source", T0.plusDays(8)));
         em.flush();
         em.clear();
     }
@@ -141,15 +142,6 @@ class MarketMappingTest {
     }
 
     @Test
-    @DisplayName("A resolution loads the account that resolved it lazily")
-    void resolutionLoadsResolverLazily() {
-        Resolution loaded = em.find(Resolution.class, resolution.getId());
-
-        assertThat(Hibernate.isInitialized(loaded.getResolvedBy())).isFalse();
-        assertThat(loaded.getResolvedBy().getEmail()).isEqualTo("author@example.com");
-    }
-
-    @Test
     @DisplayName("A wallet loads its owner account lazily")
     void walletLoadsOwnerAccountLazily() {
         Wallet loaded = em.find(Wallet.class, wallet.getId());
@@ -176,8 +168,7 @@ class MarketMappingTest {
                                 creator,
                                 question,
                                 new BigDecimal("0.524979"),
-                                new BigDecimal("0.225645"),
-                                T0.plusDays(8)));
+                                new BigDecimal("0.225645")));
         em.flush();
         em.clear();
 

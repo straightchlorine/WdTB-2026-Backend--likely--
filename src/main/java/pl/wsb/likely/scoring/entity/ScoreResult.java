@@ -17,7 +17,6 @@ import pl.wsb.likely.account.domain.UserAccount;
 import pl.wsb.likely.market.entity.Question;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
  * The Brier score of one player in one resolved question. Ranking of players would be built from
@@ -25,6 +24,9 @@ import java.time.LocalDateTime;
  *
  * <p>Many scores point to one player (account) and many to one question; a player has at most one
  * score per question.
+ *
+ * <p>There is no scoring time: a score is created when its question is resolved, so the time is
+ * {@code resolution.resolved_at}.
  */
 @Entity
 @Table(
@@ -60,22 +62,14 @@ public class ScoreResult {
     @Column(name = "brier", nullable = false, precision = 9, scale = 6)
     private BigDecimal brier;
 
-    @Column(name = "scored_at", nullable = false)
-    private LocalDateTime scoredAt;
-
     protected ScoreResult() {}
 
     public ScoreResult(
-            UserAccount account,
-            Question question,
-            BigDecimal forecast,
-            BigDecimal brier,
-            LocalDateTime scoredAt) {
+            UserAccount account, Question question, BigDecimal forecast, BigDecimal brier) {
         this.account = account;
         this.question = question;
         this.forecast = forecast;
         this.brier = brier;
-        this.scoredAt = scoredAt;
     }
 
     public Long getId() {
@@ -96,9 +90,5 @@ public class ScoreResult {
 
     public BigDecimal getBrier() {
         return brier;
-    }
-
-    public LocalDateTime getScoredAt() {
-        return scoredAt;
     }
 }

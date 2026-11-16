@@ -2,9 +2,8 @@
 
 -- Demo accounts from the course template.
 -- Market data does use those accounts:
--- * firma creates the questions and, as the creator, resolves one of them,
--- * admin resolves the other two,
--- * ola plays (kuba only has a wallet).
+-- * firma creates the questions,
+-- * ola plays (kuba and admin only have a wallet).
 insert into user_account (email, display_name, role, created_at) values
     ('ola@student.merito.pl',   'Ola',   'USER',    current_timestamp),
     ('kuba@student.merito.pl',  'Kuba',  'USER',    current_timestamp),
@@ -23,7 +22,7 @@ insert into user_account (email, display_name, role, created_at) values
 -- Id nadaje baza, po kolei, w kolejności insertów, więc nie wpisujemy ich ręcznie.
 -- Inne wiersze wskazujemy przez select po e-mailu (konta) albo tytule (pytania).
 -- Od LAB 03 wszystkie kolumny *_id poniżej są kluczami obcymi (relacje w encjach):
--- creator_id, account_id i resolved_by_id wskazują konto, question_id pytanie, wallet_id portfel.
+-- creator_id i account_id wskazują konto, question_id pytanie, wallet_id portfel.
 --
 -- Players in the demo data:
 -- * piotr.lis@student.merito.pl,
@@ -79,14 +78,14 @@ insert into question (creator_id, title, description, status, close_at, liquidit
      dateadd('DAY', -20, current_timestamp), 100.0000, 0.0000, 0.0000, dateadd('DAY', -50, current_timestamp), 0);
 
 -- ===== resolution =====
--- Wynik pytania (TAK/NIE), kto i kiedy go rozstrzygnął. Tylko pytania RESOLVED; anulowane nie mają wiersza.
-insert into resolution (question_id, outcome, resolved_by_id, resolved_at) values
+-- Wynik pytania (TAK/NIE), kiedy go rozstrzygnięto i gdzie to potwierdzono (source). Tylko pytania RESOLVED; anulowane nie mają wiersza.
+insert into resolution (question_id, outcome, source, resolved_at) values
     ((select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'),
-     'YES', (select id from user_account where email = 'admin@example.com'), dateadd('DAY', -15, current_timestamp)),
+     'YES', 'IMGW monthly climate summary, August 2026', dateadd('DAY', -15, current_timestamp)),
     ((select id from question where title = 'Did Poland win the September match against Czechia?'),
-     'NO', (select id from user_account where email = 'firma@example.com'), dateadd('DAY', -15, current_timestamp)),
+     'NO', 'UEFA official match report', dateadd('DAY', -15, current_timestamp)),
     ((select id from question where title = 'Will the 2026 Nobel Prize in Literature go to a Polish writer?'),
-     'NO', (select id from user_account where email = 'admin@example.com'), dateadd('DAY', -16, current_timestamp));
+     'NO', 'nobelprize.org announcement', dateadd('DAY', -16, current_timestamp));
 
 -- ===== trade =====
 -- Transakcje w kolejności ich wykonania - wyznacza ją id wiersza.
@@ -163,16 +162,16 @@ insert into holding (wallet_id, question_id, shares_yes, shares_no, payout) valu
 --
 -- Jeżeli zakup przesunął cenę w stronę gracza, ranking traktuje nową cenę jako prognozę gracza.
 -- Jeżeli to prawdopodobieństwo zostało po przeciwnej stronie 50%, liczymy to jako rzut monetą.
-insert into score_result (account_id, question_id, forecast, brier, scored_at) values
+insert into score_result (account_id, question_id, forecast, brier) values
     ((select id from user_account where email = 'piotr.lis@student.merito.pl'),
-     (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.549834, 0.202649, dateadd('DAY', -15, current_timestamp)),
+     (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.549834, 0.202649),
     ((select id from user_account where email = 'jakub.kucharski@student.merito.pl'),
-     (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.500000, 0.250000, dateadd('DAY', -15, current_timestamp)),
+     (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.500000, 0.250000),
     ((select id from user_account where email = 'ola@student.merito.pl'),
-     (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.562177, 0.191689, dateadd('DAY', -15, current_timestamp)),
+     (select id from question where title = 'Did the average temperature in Warsaw in August 2026 exceed 20 degrees C?'), 0.562177, 0.191689),
     ((select id from user_account where email = 'piotr.lis@student.merito.pl'),
-     (select id from question where title = 'Did Poland win the September match against Czechia?'), 0.462570, 0.213971, dateadd('DAY', -15, current_timestamp)),
+     (select id from question where title = 'Did Poland win the September match against Czechia?'), 0.462570, 0.213971),
     ((select id from user_account where email = 'jakub.kucharski@student.merito.pl'),
-     (select id from question where title = 'Did Poland win the September match against Czechia?'), 0.512497, 0.262653, dateadd('DAY', -15, current_timestamp)),
+     (select id from question where title = 'Did Poland win the September match against Czechia?'), 0.512497, 0.262653),
     ((select id from user_account where email = 'ola@student.merito.pl'),
-     (select id from question where title = 'Did Poland win the September match against Czechia?'), 0.482507, 0.232813, dateadd('DAY', -15, current_timestamp));
+     (select id from question where title = 'Did Poland win the September match against Czechia?'), 0.482507, 0.232813);

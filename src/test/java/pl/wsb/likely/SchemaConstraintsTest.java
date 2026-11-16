@@ -64,17 +64,8 @@ class SchemaConstraintsTest {
                 arguments(
                         "second resolution for a question",
                         "RESOLUTION(QUESTION_ID",
-                        "insert into resolution (question_id, outcome, resolved_by_id, resolved_at)"
-                                + " select question_id, 'NO', resolved_by_id, resolved_at from"
-                                + " resolution"),
-                arguments(
-                        "resolution without author",
-                        "RESOLVED_BY_ID",
-                        "update resolution set resolved_by_id = null"),
-                arguments(
-                        "resolution by unknown account",
-                        "FOREIGN KEY(RESOLVED_BY_ID)",
-                        "update resolution set resolved_by_id = -1"),
+                        "insert into resolution (question_id, outcome, source, resolved_at)"
+                                + " select question_id, 'NO', source, resolved_at from resolution"),
                 arguments(
                         "resolution without outcome",
                         "OUTCOME",
@@ -157,9 +148,9 @@ class SchemaConstraintsTest {
                 arguments(
                         "second score for a player in a question",
                         "uk_score_result_account_question",
-                        "insert into score_result (account_id, question_id, forecast, brier,"
-                                + " scored_at) select account_id, question_id, forecast, brier,"
-                                + " scored_at from score_result"),
+                        "insert into score_result (account_id, question_id, forecast, brier)"
+                                + " select account_id, question_id, forecast, brier from"
+                                + " score_result"),
                 arguments(
                         "forecast above 1",
                         "ck_score_result",

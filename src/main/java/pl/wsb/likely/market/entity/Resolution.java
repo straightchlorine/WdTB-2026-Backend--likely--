@@ -9,11 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
-import pl.wsb.likely.account.domain.UserAccount;
 
 import java.time.LocalDateTime;
 
@@ -45,22 +42,19 @@ public class Resolution {
     @Column(name = "outcome", nullable = false, length = 3)
     private Outcome outcome;
 
-    // The account that resolved the question: its creator or an admin
-    // (many resolutions -> one account).
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "resolved_by_id")
-    private UserAccount resolvedBy;
+    // Where the result was confirmed (a link or a short note), so anyone can check it.
+    @Column(name = "source", length = 500)
+    private String source;
 
     @Column(name = "resolved_at", nullable = false)
     private LocalDateTime resolvedAt;
 
     protected Resolution() {}
 
-    public Resolution(
-            Question question, Outcome outcome, UserAccount resolvedBy, LocalDateTime resolvedAt) {
+    public Resolution(Question question, Outcome outcome, String source, LocalDateTime resolvedAt) {
         this.question = question;
         this.outcome = outcome;
-        this.resolvedBy = resolvedBy;
+        this.source = source;
         this.resolvedAt = resolvedAt;
     }
 
@@ -76,8 +70,8 @@ public class Resolution {
         return outcome;
     }
 
-    public UserAccount getResolvedBy() {
-        return resolvedBy;
+    public String getSource() {
+        return source;
     }
 
     public LocalDateTime getResolvedAt() {

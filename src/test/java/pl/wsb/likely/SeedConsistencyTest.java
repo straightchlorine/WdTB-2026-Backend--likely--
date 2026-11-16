@@ -103,14 +103,6 @@ class SeedConsistencyTest {
                         where (q.status = 'RESOLVED') <> (exists (select 1 from resolution r where r.question_id = q.id))
                         """),
                 arguments(
-                        "resolved by the question creator or an ADMIN",
-                        """
-                        select r.id from resolution r
-                        join question q on q.id = r.question_id
-                        left join user_account u on u.id = r.resolved_by_id
-                        where u.id is null or (u.id <> q.creator_id and u.role <> 'ADMIN')
-                        """),
-                arguments(
                         "trade between question creation and close",
                         """
                         select t.id from trade t
