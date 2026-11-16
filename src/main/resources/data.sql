@@ -88,7 +88,7 @@ insert into resolution (question_id, outcome, source, resolved_at) values
      'NO', 'nobelprize.org announcement', dateadd('DAY', -16, current_timestamp));
 
 -- ===== trade =====
--- Transakcje w kolejności ich wykonania - wyznacza ją id wiersza.
+-- Transakcje w kolejności ich wykonania - wyznaczoną przez id wiersza.
 -- Każda transakcja zmienia stan pytania - liczbę udziałów TAK/NIE.
 -- Następna transakcja w tym samym pytaniu rozpoczyna się od tego stanu.
 -- Zanim ktokolwiek kupi, rynek jest neutralny 50/50.
